@@ -140,3 +140,55 @@ library(tidyverse)
 library(GGally)
 library(emmeans)
 library(performance)
+
+
+lsmodel0 <- lm(formula = height ~ 1, data = darwin)
+
+summary(lsmodel0)
+
+mean(darwin$height)
+
+lsmodel1 <- lm(height ~ type, data=darwin)
+
+# note that the following is identical
+
+# lsmodel1 <- lm(height ~ 1 + type, data=darwin)
+
+summary(lsmodel0)
+
+
+broom::tidy(lsmodel1)
+
+summary(lsmodel1)
+
+darwin %>% 
+  ggplot(aes(x=type, 
+             y=height,
+             colour=type))+
+  geom_jitter(alpha=0.5,
+              width=0.1)+
+  stat_summary(fun=mean,
+               size=1.2)+
+  theme_bw()
+
+broom::tidy(lsmodel1, conf.int=T) # 95% CI for the height of the crossed plants and the second row gives a 95% interval for the difference in height between crossed and selfed plants. The lower and upper bounds are the 2.5% and 97.5% of a t-distribution
+
+library(broom.helpers)
+
+GGally::ggcoef_model(lsmodel1,
+                     show_p_values=FALSE, 
+                     conf.level=0.95)
+
+GGally::ggcoef_model(lsmodel1,
+                     show_p_values=FALSE, 
+                     conf.level=0.99)
+
+broom::tidy(lsmodel1, conf.int=T, conf.level=0.99)
+
+darwin %>% 
+  mutate(type=factor(type)) %>% 
+  mutate(type=fct_relevel(type, c("Self", "Cross"))) %>% 
+  lm(height~type, data=.) %>% 
+  broom::tidy()
+
+
