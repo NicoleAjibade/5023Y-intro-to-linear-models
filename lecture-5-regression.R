@@ -164,5 +164,10 @@ plot(janka_ls1, which=c(2,2))
 
 plot(janka_ls1, which=c(1,3))
 
+plot(janka_ls1, which=c(4,5))
+
+#_________________-----
+
+# PREDICTION ----
 
 
