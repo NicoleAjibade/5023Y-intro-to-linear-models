@@ -155,7 +155,8 @@ p3
 
 #_____________----
 
-# 
+# MORE RESIDUAL STUFF ----
+
 #only two or three points outside of the confidence levels
 plot(janka_ls1, which=c(2,2))
 
@@ -169,5 +170,48 @@ plot(janka_ls1, which=c(4,5))
 #_________________-----
 
 # PREDICTION ----
+
+coef(janka_ls1)
+
+#Imagine a new wood sample with a density of 22, 35 or 65. Apply the model to 
+#make a prediction
+coef(janka_ls1)[1] + coef(janka_ls1)[2] * 65
+
+#easier way
+predict(janka_ls1, newdata=list(dens=c(22,35,65)))
+
+#Adding Standard Errors
+broom::augment(janka_ls1, newdata = tibble(dens=c(22,35,65)), se=TRUE)
+
+#Adding Confidence Levels
+broom::augment(janka_ls1, newdata=tibble(dens=c(22,35,65)), interval="confidence")
+
+#Adding Standard Error and Confidence Levels together
+emmeans::emmeans(janka_ls1, 
+                 specs = "dens", 
+                 at = list(dens = c(22, 35, 65)))
+
+#___________________----
+
+#COMBINING THE THREE NEW DATA POINTS AND THE ORIGINAL PLOT ----
+
+pred_newdata <- broom::augment(janka_ls1, 
+                               newdata=tibble(dens=c(22,35,65))) 
+
+#making a new data set with the added new data points (22, 35, 65)
+
+janka %>% 
+  ggplot(aes(x=dens, y=hardness))+
+  geom_point()+
+  geom_smooth(method="lm")+
+  geom_point(data=pred_newdata, aes(y=.fitted, x=dens), colour="red")+
+  geom_label(data=pred_newdata, (aes(y=(.fitted+10), x=(dens+3), label=round(.fitted, digits=0))))+
+  theme_bw()+
+  labs(x="Density", y="Timber Hardness")+
+  scale_x_continuous(limits=c(20,80), expand=expansion(add=c(0,5)))
+
+#highlighted the new data points that all fall along the regression line
+
+#_______________----
 
 
